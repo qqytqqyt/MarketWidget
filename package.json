@@ -32,12 +32,6 @@
       "perMachine": false,
       "runAfterFinish": true,
       "deleteAppDataOnUninstall": false
-    },
-    "publish": {
-      "provider": "github",
-      "owner": "qqytqqyt",
-      "repo": "MarketWidget",
-      "releaseType": "release"
     }
   }
 }
