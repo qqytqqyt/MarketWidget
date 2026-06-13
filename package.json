@@ -1,6 +1,6 @@
 {
   "name": "market-widget",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Desktop widget for live share prices with after-hours and overnight sessions",
   "main": "main.js",
   "author": "qqytqqyt",
@@ -12,7 +12,7 @@
     "dist": "electron-builder --win --publish never"
   },
   "devDependencies": {
-    "electron": "^31.0.0",
+    "electron": "^42.4.0",
     "electron-builder": "^26.15.3"
   },
   "build": {
@@ -24,7 +24,9 @@
       "renderer/**/*"
     ],
     "win": {
-      "target": ["nsis"],
+      "target": [
+        "nsis"
+      ],
       "icon": "build/icon.ico"
     },
     "nsis": {
@@ -33,5 +35,8 @@
       "runAfterFinish": true,
       "deleteAppDataOnUninstall": false
     }
+  },
+  "dependencies": {
+    "koffi": "^3.0.2"
   }
 }

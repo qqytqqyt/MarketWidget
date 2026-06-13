@@ -264,6 +264,36 @@ async function fetchAllQuotes() {
 // ---------------------------------------------------------------------------
 let win = null;
 
+// Chromium's SetZOrderLevel path silently fails to apply WS_EX_TOPMOST on
+// some Windows 11 builds (observed on 26100/24H2: setAlwaysOnTop no-ops and
+// isAlwaysOnTop() stays false, while a direct SetWindowPos works). Fall back
+// to calling user32 directly when Electron's call doesn't stick.
+let nativeSetTopmost = null;
+if (process.platform === 'win32') {
+  try {
+    const koffi = require('koffi');
+    const user32 = koffi.load('user32.dll');
+    const SetWindowPos = user32.func(
+      'bool __stdcall SetWindowPos(intptr hWnd, intptr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags)'
+    );
+    const HWND_TOPMOST = -1n, HWND_NOTOPMOST = -2n;
+    const SWP_NOSIZE_NOMOVE_NOACTIVATE = 0x13;
+    nativeSetTopmost = (hwnd, onTop) =>
+      SetWindowPos(hwnd, onTop ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE_NOMOVE_NOACTIVATE);
+  } catch (e) {
+    console.error('koffi unavailable, native topmost fallback disabled:', e.message);
+  }
+}
+
+function applyAlwaysOnTop() {
+  if (!win || win.isDestroyed()) return;
+  win.setAlwaysOnTop(config.alwaysOnTop);
+  if (nativeSetTopmost && win.isAlwaysOnTop() !== config.alwaysOnTop) {
+    const hwnd = win.getNativeWindowHandle().readBigUInt64LE(0);
+    nativeSetTopmost(hwnd, config.alwaysOnTop);
+  }
+}
+
 function validBounds(b) {
   if (!b) return null;
   const onScreen = screen.getAllDisplays().some((d) => {
@@ -309,6 +339,25 @@ function createWindow() {
   };
   win.on('moved', persistBounds);
   win.on('resized', persistBounds);
+
+  // The alwaysOnTop constructor option is unreliable here — assert it
+  // explicitly after load and reassert on visibility changes.
+  win.webContents.once('did-finish-load', applyAlwaysOnTop);
+  win.on('show', applyAlwaysOnTop);
+  win.on('restore', applyAlwaysOnTop);
+
+  if (process.env.MW_DEBUG) {
+    win.webContents.once('did-finish-load', () => {
+      setTimeout(() => {
+        const h = win.getNativeWindowHandle();
+        console.log('MW_DEBUG hwnd=', h.readBigUInt64LE(0).toString(),
+          'isAlwaysOnTop=', win.isAlwaysOnTop(),
+          'configAlwaysOnTop=', config.alwaysOnTop);
+        win.setAlwaysOnTop(true);
+        console.log('MW_DEBUG after explicit set: isAlwaysOnTop=', win.isAlwaysOnTop());
+      }, 3000);
+    });
+  }
 
   // Optional screenshot hook for automated verification
   if (process.env.MW_SHOT) {
@@ -409,7 +458,10 @@ ipcMain.handle('spark:fetch', async (_e, symbol) => {
 ipcMain.handle('window:pin', (_e, value) => {
   config.alwaysOnTop = !!value;
   saveConfig();
-  if (win) win.setAlwaysOnTop(config.alwaysOnTop);
+  if (win) {
+    applyAlwaysOnTop();
+    if (config.alwaysOnTop) win.moveTop();
+  }
   return config.alwaysOnTop;
 });
 
