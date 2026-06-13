@@ -338,15 +338,19 @@ function createWindow() {
 // ---------------------------------------------------------------------------
 // Auto-start (launch at Windows login)
 // ---------------------------------------------------------------------------
+// getLoginItemSettings only reports openAtLogin=true when the registry
+// command matches execPath + these exact args, so set and get must agree.
+const AUTOSTART_ARGS = ['--autostart'];
+
 function getAutoStart() {
-  return app.getLoginItemSettings().openAtLogin;
+  return app.getLoginItemSettings({ args: AUTOSTART_ARGS }).openAtLogin;
 }
 
 function setAutoStart(enabled) {
   // Only meaningful for an installed build; in dev this would register
   // the bare electron.exe, so skip.
   if (app.isPackaged) {
-    app.setLoginItemSettings({ openAtLogin: !!enabled, args: ['--autostart'] });
+    app.setLoginItemSettings({ openAtLogin: !!enabled, args: AUTOSTART_ARGS });
   }
   return getAutoStart();
 }
