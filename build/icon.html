@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<body>
+<canvas id="c"></canvas>
+<script>
+  // Draws the app icon at a given size and returns a PNG data URL.
+  function renderIcon(size) {
+    const c = document.getElementById('c');
+    c.width = size;
+    c.height = size;
+    const ctx = c.getContext('2d');
+    const s = size / 256; // design coordinates are 256-based
+
+    // rounded-square background
+    const r = 58 * s;
+    const pad = 8 * s;
+    const w = size - pad * 2;
+    ctx.clearRect(0, 0, size, size);
+    const bg = ctx.createLinearGradient(0, 0, size, size);
+    bg.addColorStop(0, '#1b2032');
+    bg.addColorStop(1, '#0d1018');
+    ctx.beginPath();
+    ctx.roundRect(pad, pad, w, w, r);
+    ctx.fillStyle = bg;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+    ctx.lineWidth = Math.max(1, 3 * s);
+    ctx.stroke();
+
+    // chart line
+    const pts = [
+      [44, 172], [78, 138], [104, 156], [134, 96], [160, 118], [212, 62],
+    ].map(([x, y]) => [x * s, y * s]);
+
+    // gradient fill under the line
+    const fill = ctx.createLinearGradient(0, 60 * s, 0, 210 * s);
+    fill.addColorStop(0, 'rgba(52,211,153,0.45)');
+    fill.addColorStop(1, 'rgba(52,211,153,0)');
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (const [x, y] of pts) ctx.lineTo(x, y);
+    ctx.lineTo(pts[pts.length - 1][0], 204 * s);
+    ctx.lineTo(pts[0][0], 204 * s);
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0], pts[0][1]);
+    for (const [x, y] of pts) ctx.lineTo(x, y);
+    ctx.strokeStyle = '#34d399';
+    ctx.lineWidth = 14 * s;
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    // end dot with glow
+    const [ex, ey] = pts[pts.length - 1];
+    ctx.beginPath();
+    ctx.arc(ex, ey, 16 * s, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(103,232,249,0.35)';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(ex, ey, 9 * s, 0, Math.PI * 2);
+    ctx.fillStyle = '#67e8f9';
+    ctx.fill();
+
+    return c.toDataURL('image/png');
+  }
+</script>
+</body>
+</html>

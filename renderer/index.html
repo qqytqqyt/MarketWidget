@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'" />
+  <title>Market Widget</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="shell">
+    <header id="titlebar">
+      <div class="brand">
+        <span id="market-dot" class="dot"></span>
+        <span class="title">Markets</span>
+        <span id="market-label" class="market-label"></span>
+      </div>
+      <div class="controls">
+        <button id="btn-add" class="icon-btn" title="Add symbol">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg>
+        </button>
+        <button id="btn-pin" class="icon-btn" title="Always on top">
+          <svg viewBox="0 0 24 24"><path d="M12 17v5M7 4h10l-1.5 6 2.5 3v2H6v-2l2.5-3L7 4z" /></svg>
+        </button>
+        <button id="btn-settings" class="icon-btn" title="Settings">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+        <button id="btn-min" class="icon-btn" title="Minimize">
+          <svg viewBox="0 0 24 24"><path d="M5 12h14" /></svg>
+        </button>
+        <button id="btn-close" class="icon-btn close" title="Close">
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
+      </div>
+    </header>
+
+    <div id="search-panel" class="hidden">
+      <input id="search-input" type="text" placeholder="Search ticker or company…" spellcheck="false" autocomplete="off" />
+      <div id="search-results"></div>
+    </div>
+
+    <div id="settings-panel" class="hidden">
+      <div class="setting-row">
+        <div class="setting-text">
+          <span class="setting-title">Launch at startup</span>
+          <span class="setting-sub">Open automatically when you sign in to Windows</span>
+        </div>
+        <label class="switch">
+          <input id="toggle-autostart" type="checkbox" />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-text">
+          <span class="setting-title">Always on top</span>
+          <span class="setting-sub">Keep the widget above other windows</span>
+        </div>
+        <label class="switch">
+          <input id="toggle-pin" type="checkbox" />
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div id="autostart-note" class="setting-note hidden">Available in the installed app only</div>
+    </div>
+
+    <div id="firstrun-modal" class="hidden">
+      <div class="modal-card">
+        <div class="modal-title">Start with Windows?</div>
+        <div class="modal-body">
+          Market Widget can launch automatically when you sign in,
+          so your watchlist is always on screen. You can change this
+          later in Settings.
+        </div>
+        <div class="modal-actions">
+          <button id="firstrun-no" class="btn ghost">Not now</button>
+          <button id="firstrun-yes" class="btn primary">Enable</button>
+        </div>
+      </div>
+    </div>
+
+    <main id="list"></main>
+
+    <footer id="statusbar">
+      <span id="status-left">—</span>
+      <span id="status-right">Yahoo · Webull</span>
+    </footer>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
